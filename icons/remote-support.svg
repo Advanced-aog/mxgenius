@@ -1,0 +1,39 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+  <!-- Define the style -->
+  <defs>
+    <style>
+      .icon-stroke {
+        fill: none;
+        stroke: #3b82f6;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+
+  <!-- Left Ear Cup -->
+  <circle cx="16" cy="28" r="5" class="icon-stroke"/>
+  
+  <!-- Right Ear Cup -->
+  <circle cx="48" cy="28" r="5" class="icon-stroke"/>
+  
+  <!-- Headband -->
+  <path d="M 21 23 Q 32 16 43 23" class="icon-stroke"/>
+  
+  <!-- Microphone Boom (subtle) -->
+  <path d="M 16 33 Q 14 38 16 42" class="icon-stroke"/>
+  <circle cx="16" cy="44" r="1.5" class="icon-stroke"/>
+  
+  <!-- Connection/Signal Line 1 (closest) -->
+  <path d="M 52 24 Q 56 24 58 26" class="icon-stroke"/>
+  
+  <!-- Connection/Signal Line 2 (medium) -->
+  <path d="M 52 28 Q 58 28 61 28" class="icon-stroke"/>
+  
+  <!-- Connection/Signal Line 3 (farthest) -->
+  <path d="M 52 32 Q 56 32 58 34" class="icon-stroke"/>
+  
+  <!-- Central Connection Node -->
+  <circle cx="52" cy="28" r="1.5" fill="#3b82f6"/>
+</svg>

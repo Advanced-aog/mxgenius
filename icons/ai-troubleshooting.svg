@@ -1,0 +1,91 @@
+<svg viewBox="0 0 216 216" xmlns="http://www.w3.org/2000/svg">
+  <!-- Define shared styles -->
+  <defs>
+    <style>
+      .icon-stroke {
+        stroke: #3b82f6;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .icon-fill {
+        fill: #3b82f6;
+      }
+    </style>
+  </defs>
+
+  <!-- Report Icon (Top Left) -->
+  <g transform="translate(12, 12)">
+    <!-- Document/Tablet -->
+    <rect x="8" y="4" width="32" height="40" rx="2" class="icon-stroke"/>
+    
+    <!-- Chat Bubble -->
+    <path d="M 14 16 Q 14 14 16 14 L 28 14 Q 30 14 30 16 L 30 22 Q 30 24 28 24 L 20 24 L 18 28 L 20 24 Q 18 24 16 24 Q 14 24 14 22 Z" class="icon-stroke"/>
+    
+    <!-- Dots in chat -->
+    <circle cx="18" cy="19" r="1.5" class="icon-fill"/>
+    <circle cx="24" cy="19" r="1.5" class="icon-fill"/>
+    <circle cx="30" cy="19" r="1.5" class="icon-fill" opacity="0.5"/>
+  </g>
+
+  <!-- Analyze Icon (Top Right) -->
+  <g transform="translate(114, 12)">
+    <!-- Magnifying Glass -->
+    <circle cx="16" cy="16" r="12" class="icon-stroke"/>
+    <line x1="26" y1="26" x2="32" y2="32" class="icon-stroke"/>
+    
+    <!-- Sparkle Elements (AI indicator) -->
+    <g transform="translate(28, 8)">
+      <!-- Star sparkle -->
+      <line x1="2" y1="0" x2="2" y2="4" class="icon-stroke"/>
+      <line x1="0" y1="2" x2="4" y2="2" class="icon-stroke"/>
+    </g>
+    
+    <g transform="translate(8, 6)">
+      <!-- Small sparkle -->
+      <circle cx="0" cy="0" r="1" class="icon-fill"/>
+      <circle cx="2" cy="0" r="0.5" class="icon-fill"/>
+      <circle cx="1" cy="2" r="0.5" class="icon-fill"/>
+    </g>
+  </g>
+
+  <!-- Resolve Icon (Bottom Left) -->
+  <g transform="translate(12, 114)">
+    <!-- Wrench -->
+    <g transform="translate(10, 8)">
+      <path d="M 2 16 Q 2 14 4 14 L 14 4 Q 18 0 22 4 L 20 6 Q 18 2 16 2 Q 14 2 12 4 L 4 12 Q 2 12 2 14" class="icon-stroke"/>
+      <circle cx="20" cy="6" r="2.5" class="icon-stroke"/>
+    </g>
+    
+    <!-- Checkmark -->
+    <g transform="translate(22, 18)">
+      <path d="M 0 8 L 4 12 L 12 2" class="icon-stroke" stroke-width="2"/>
+    </g>
+  </g>
+
+  <!-- Learn Icon (Bottom Right) -->
+  <g transform="translate(114, 114)">
+    <!-- Brain/Circuit outline -->
+    <g transform="translate(10, 8)">
+      <!-- Left lobe -->
+      <circle cx="6" cy="8" r="4.5" class="icon-stroke"/>
+      <!-- Right lobe -->
+      <circle cx="18" cy="8" r="4.5" class="icon-stroke"/>
+      <!-- Center connection -->
+      <line x1="10.5" y1="8" x2="13.5" y2="8" class="icon-stroke"/>
+      
+      <!-- Bottom stem -->
+      <path d="M 10 13.5 Q 10 16 12 18 Q 12 20 10 22 L 14 22" class="icon-stroke"/>
+      
+      <!-- Circuit nodes -->
+      <circle cx="8" cy="12" r="1" class="icon-fill"/>
+      <circle cx="16" cy="12" r="1" class="icon-fill"/>
+    </g>
+    
+    <!-- Growth Arrow -->
+    <g transform="translate(24, 16)">
+      <path d="M 2 8 L 2 2 L 8 2 M 2 2 L 8 8" class="icon-stroke" stroke-width="1.8"/>
+    </g>
+  </g>
+</svg>

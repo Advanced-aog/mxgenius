@@ -1,0 +1,31 @@
+# MXGenius Master Video - Shot Prompts (for AI video generation)
+
+## SCENE 1: HOOK (0-4s) — "Aircraft Grounded"
+Prompt: Cinematic aerial drone shot of a commercial aircraft parked on an empty tarmac, dramatic lighting, subtle fog, isolated and grounded, moody cinematic atmosphere, 4K, professional aviation photography style
+
+## SCENE 2: OWNER PAIN (4-10s) — "The Scramble"
+Prompt: Fast-paced montage sequence: businessman checking phone anxiously, empty departure board showing delays, aircraft maintenance hangar with workers, frustrated pilot looking at paperwork, split-screen timers counting down, high-energy editing, cinematic color grading
+
+## SCENE 3: OWNER RELIEF INTRO (10-14s) — "Stay Ready"
+Prompt: Smooth transition to clean modern interface on tablet screen showing "MXGenius" app dashboard, aircraft icons appearing on map near user location, warm golden hour lighting through office window, calm professional atmosphere, UI mockup animation
+
+## SCENE 4: OWNER FEATURES (14-22s) — "Trusted Network"
+Prompt: Close-up hands scrolling through list of verified maintenance providers on smartphone, each card showing star ratings and credentials, map overlay highlighting nearby locations, smooth swipe gestures, daylight setting at general aviation FBO, clean modern aesthetic
+
+## SCENE 5: OWNER TRUST (22-30s) — "Verified Credentials"
+Prompt: Animated checklist appearing over aircraft maintenance shop exterior, verified checkmark badges popping up, real customer review stars glowing, technician in background working, professional certification documents briefly visible, trust and reliability visual cues
+
+## SCENE 6: VENDOR TRANSITION (30-34s) — "Pipeline"
+Prompt: Dynamic transition showing business professional walking into modern aviation services office, team collaborating around large screens with prospect data, cinematic slow motion entrance, energetic but professional mood, sunrise lighting
+
+## SCENE 7: VENDOR FEATURES (34-46s) — "Focused Outreach"
+Prompt: Split screen showing chaotic cold-call list on left transforming into clean prioritized prospect list on right, map with targeting pins around service territory, team marking completed calls on shared dashboard, efficient workflow visualization, professional business setting
+
+## SCENE 8: VENDOR MARKETPLACE (46-56s) — "Get Discovered"
+Prompt: Vendor profile page on MXGenius marketplace with badge highlights, incoming inquiry notification appearing, referral network diagram showing connections, aircraft operators viewing profiles, business growth visualization with upward trending graphics
+
+## SCENE 9: CTA (56-68s) — "Connect Fast"
+Prompt: Split-screen showing operator with aircraft + service provider team, both sides looking satisfied, handshake or connection visual metaphor, seamless bridge between the two groups, professional warm tones, unity and partnership imagery
+
+## SCENE 10: FINAL CTA (68-80s) — "Book Demo"
+Prompt: MXGenius logo lockup with clean modern typography, subtle aircraft silhouette in background, call-to-action text "Book a Demo" with button animation, professional tech company branding, polished end card with contact info placeholder, gradient background

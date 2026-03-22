@@ -1,0 +1,58 @@
+<svg viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Define gradients -->
+  <defs>
+    <!-- Primary gradient for main elements -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Accent gradient for highlights -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Airplane body (fuselage and cockpit) -->
+  <g id="airplane">
+    <!-- Fuselage -->
+    <path d="M 25 32 L 60 28 L 75 32 L 60 36 Z" fill="url(#blueGradient)" stroke="#1e40af" stroke-width="0.5" stroke-linejoin="round"/>
+    
+    <!-- Cockpit -->
+    <circle cx="27" cy="32" r="3.5" fill="#93c5fd" stroke="#1e40af" stroke-width="0.5"/>
+    
+    <!-- Main wings -->
+    <path d="M 50 32 L 38 26 L 38 38 Z" fill="url(#accentGradient)" stroke="#1e40af" stroke-width="0.5" stroke-linejoin="round"/>
+    <path d="M 50 32 L 62 26 L 62 38 Z" fill="url(#accentGradient)" stroke="#1e40af" stroke-width="0.5" stroke-linejoin="round"/>
+    
+    <!-- Tail wing -->
+    <path d="M 72 32 L 68 29 L 68 35 Z" fill="url(#blueGradient)" stroke="#1e40af" stroke-width="0.5" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Wrench element (integrated as maintenance tool) -->
+  <g id="wrench" transform="translate(75, 32)">
+    <!-- Wrench handle (diagonal) -->
+    <line x1="0" y1="0" x2="22" y2="-15" stroke="url(#blueGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Wrench head (open end) -->
+    <circle cx="22" cy="-15" r="4.5" fill="none" stroke="url(#blueGradient)" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Wrench opening (lower jaw) -->
+    <path d="M 18 -13 L 26 -17" stroke="url(#blueGradient)" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Wrench base detail -->
+    <circle cx="0" cy="0" r="2.5" fill="url(#blueGradient)"/>
+  </g>
+  
+  <!-- Accent spark/light elements for "intelligence" -->
+  <g id="sparks" opacity="0.8">
+    <!-- Spark 1 (near wrench) -->
+    <line x1="102" y1="18" x2="105" y2="15" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="104" y1="16" x2="107" y2="13" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Spark 2 (accent) -->
+    <line x1="110" y1="25" x2="113" y2="22" stroke="#60a5fa" stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="112" y1="23" x2="115" y2="20" stroke="#60a5fa" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+</svg>
