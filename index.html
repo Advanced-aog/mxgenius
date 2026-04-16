@@ -88,6 +88,34 @@
             color: var(--primary-blue);
         }
 
+        .nav-links a.nav-special {
+            color: var(--accent-orange);
+            position: relative;
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+        }
+
+        .nav-links a.nav-special:hover {
+            color: #fb923c;
+            text-shadow: 0 0 15px rgba(249, 115, 22, 0.8);
+        }
+
+        .nav-links a.nav-special::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-orange);
+            box-shadow: 0 0 10px var(--accent-orange);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-links a.nav-special:hover::after {
+            transform: scaleX(1);
+        }
+
         .cta-button {
             padding: 0.75rem 1.5rem;
             background: linear-gradient(135deg, var(--primary-blue), #2563eb);
@@ -865,6 +893,7 @@
                 <li><a href="#parts">Parts</a></li>
                 <li><a href="#integrations">Integrations</a></li>
                 <li><a href="trust-center.html">Trust Center</a></li>
+                <li><a href="training-ground.html" class="nav-special">Training Ground</a></li>
             </ul>
             <a href="#get-started" class="cta-button">Get Started</a>
         </div>
