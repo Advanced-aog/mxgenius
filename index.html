@@ -847,6 +847,36 @@
         .animate-on-scroll {
             animation: fadeInUp 0.6s ease-out;
         }
+            .hamburger {
+            display: none;
+            color: var(--text-white);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 960px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 10, 15, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 20px;
+                gap: 15px;
+                border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .hamburger {
+                display: block;
+            }
+            #nav-cta {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -895,7 +925,10 @@
                 <li><a href="trust-center.html">Trust Center</a></li>
                 <li><a href="training-ground.html" class="nav-special">Training Ground</a></li>
             </ul>
-            <a href="waitlist.html" class="cta-button">Get Started</a>
+            <a href="waitlist.html" class="cta-button" id="nav-cta">Get Started</a>
+            <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </div>
         </div>
     </nav>
 
