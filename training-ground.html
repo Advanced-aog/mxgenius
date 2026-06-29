@@ -89,6 +89,24 @@
       display: flex;
       flex-direction: column;
       padding: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .sidebar.collapsed {
+      width: 0;
+      padding-left: 0;
+      padding-right: 0;
+      border-right: none;
+    }
+    .sidebar.collapsed > * {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .sidebar > * {
+      opacity: 1;
+      transition: opacity 0.3s 0.1s;
     }
     .history-list {
       margin-top: 1rem;
@@ -255,6 +273,9 @@
 <header class="header">
   <div class="header-content">
     <div style="display: flex; align-items: center; gap: 16px;">
+      <button class="action-btn" onclick="toggleSidebar()" style="border: none; padding: 0.5rem; margin-right: -8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
       <a href="index.html" style="text-decoration: none; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; padding: 6px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back
@@ -271,7 +292,7 @@
 </header>
 
 <main class="main-container">
-  <div class="sidebar">
+  <div class="sidebar" id="appSidebar">
     <button class="action-btn" style="width: 100%; justify-content: center; color: var(--text-primary);">+ New Chat</button>
     <div class="history-list">
       <!-- Chat history will appear here -->
@@ -286,7 +307,12 @@
     <div class="chat-container" id="chatContainer">
       <div class="message assistant">
         <div class="avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-        <div class="message-content">Hello! I'm MxGenius. How can I help you troubleshoot today? Describe an issue to get a MxGenius Advisory.</div>
+        <div class="message-content">
+          Hello! I'm MxGenius. How can I help you troubleshoot today? Describe an issue to get a MxGenius Advisory.
+          <div id="getStartedChatBtn" style="margin-top: 1rem; display: none;">
+            <button class="profile-btn" onclick="openAuthModal()" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 2rem;">Get Started (Create Profile)</button>
+          </div>
+        </div>
       </div>
       <div class="starters" id="startersContainer">
         <button class="starter-btn" onclick="useStarter('APU is auto-shutdown with fault light illuminated')">APU is auto-shutdown with fault light illuminated</button>
@@ -488,7 +514,9 @@
 
     function renderProfileArea() {
         const profileArea = document.getElementById('userProfileArea');
+        const getStartedBtn = document.getElementById('getStartedChatBtn');
         if (currentUser) {
+            if (getStartedBtn) getStartedBtn.style.display = 'none';
             profileArea.innerHTML = `
                 <div class="user-info">
                     <img src="${currentUser.avatar || 'assets/default_avatar.png'}" class="user-avatar" alt="Avatar" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'40\\' height=\\'40\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'white\\' stroke-width=\\'2\\'><path d=\\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\\'/><circle cx=\\'12\\' cy=\\'7\\' r=\\'4\\'/></svg>'">
@@ -499,10 +527,15 @@
                 </div>
             `;
         } else {
+            if (getStartedBtn) getStartedBtn.style.display = 'block';
             profileArea.innerHTML = `
                 <button class="profile-btn" onclick="openAuthModal()">Sign Up / Log In</button>
             `;
         }
+    }
+
+    function toggleSidebar() {
+        document.getElementById('appSidebar').classList.toggle('collapsed');
     }
 
     function openAuthModal() {
