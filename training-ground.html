@@ -151,6 +151,16 @@
     }
     .submit-btn { background: var(--text-primary); color: var(--bg-primary); border: none; width: 36px; height: 36px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .submit-btn:hover { transform: scale(1.05); }
+
+    .starters {
+      display: flex; gap: 0.75rem; max-width: 800px; margin: 0.5rem auto 0; flex-wrap: wrap;
+    }
+    .starter-btn {
+      background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent-teal); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .starter-btn:hover { background: rgba(59, 130, 246, 0.2); border-color: var(--accent-teal); }
   </style>
 </head>
 <body>
@@ -185,7 +195,12 @@
     <div class="chat-container" id="chatContainer">
       <div class="message assistant">
         <div class="avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-        <div class="message-content">Hello! I'm MXGenius. How can I help you troubleshoot today? You can upload a manual or describe an issue to get a VaultMX Advisory.</div>
+        <div class="message-content">Hello! I'm MxGenius. How can I help you troubleshoot today? Describe an issue to get a MxGenius Advisory.</div>
+      </div>
+      <div class="starters" id="startersContainer">
+        <button class="starter-btn" onclick="useStarter('APU is auto-shutdown with fault light illuminated')">APU is auto-shutdown with fault light illuminated</button>
+        <button class="starter-btn" onclick="useStarter('Hydraulic system B pressure low during gear retraction')">Hydraulic system B pressure low during gear retraction</button>
+        <button class="starter-btn" onclick="useStarter('Engine 1 EGT running hot during climb')">Engine 1 EGT running hot during climb</button>
       </div>
     </div>
 
@@ -207,8 +222,15 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatContainer = document.getElementById('chatContainer');
+        const startersContainer = document.getElementById('startersContainer');
+
+        function useStarter(text) {
+            chatInput.value = text;
+            handleSend();
+        }
 
         function addMessage(text, isUser = false) {
+            if (startersContainer) startersContainer.style.display = 'none';
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
             
