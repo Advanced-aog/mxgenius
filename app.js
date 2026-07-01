@@ -2077,7 +2077,10 @@ async function showAircraftDetail(id) {
         </div>
 
         <div class="detail-section full-width" id="acDetailADs">
-          <div class="detail-section-title" style="color:#fb923c;">⚠️ FAA Airworthiness Directives</div>
+          <div class="detail-section-title" style="color:#fb923c; display:flex; justify-content:space-between; align-items:center;">
+            <span>⚠️ FAA Airworthiness Directives</span>
+            <button id="injectADsBtn" class="badge badge-heli" style="cursor:pointer; border:none; font-size:0.7rem; display:none;">Inject into Chat</button>
+          </div>
           <div id="acDetailADList" style="font-size:0.82rem;color:var(--text-secondary);">Scanning...</div>
         </div>
       </div>
@@ -2107,6 +2110,15 @@ async function showAircraftDetail(id) {
       if (ads.length === 0) {
         adContainer.innerHTML = '<div style="color:var(--text-muted);font-style:italic;">No ADs found for this aircraft type</div>';
         return;
+      }
+
+      const injectBtn = document.getElementById('injectADsBtn');
+      if (injectBtn) {
+        injectBtn.style.display = 'block';
+        const adText = ads.map(a => `- ${a.ad || a.doc}: ${a.title || a.abs}`).join('\\n');
+        injectBtn.onclick = () => {
+          window.openChatWith(`Review these FAA Airworthiness Directives for the ${ident.make} ${ident.model}:\\n${adText}`);
+        };
       }
 
       adContainer.innerHTML = ads.map(ad => `
