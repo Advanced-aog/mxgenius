@@ -310,7 +310,7 @@
         <div class="message-content">
           Hello! I'm MxGenius. How can I help you troubleshoot today? Describe an issue to get a MxGenius Advisory.
           <div id="getStartedChatBtn" style="margin-top: 1rem; display: none;">
-            <button class="profile-btn" onclick="openAuthModal()" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 2rem;">Get Started (Create Profile)</button>
+            <button class="profile-btn" onclick="window.location.href='login.html'" style="width: auto; padding: 0.5rem 1.5rem; border-radius: 2rem;">Get Started (Create Profile)</button>
           </div>
         </div>
       </div>
@@ -692,7 +692,7 @@
         } else {
             if (getStartedBtn) getStartedBtn.style.display = 'block';
             profileArea.innerHTML = `
-                <button class="profile-btn" onclick="openAuthModal()">Sign Up / Log In</button>
+                <button class="profile-btn" onclick="window.location.href='login.html'">Sign Up / Log In</button>
             `;
         }
     }
