@@ -979,9 +979,9 @@
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.outputColorSpace = THREE.SRGBColorSpace;
             renderer.xr.enabled = true;
-            const arBtn = ARButton.createButton(renderer);
+            
             const arContainer = document.getElementById('ar-button-container');
-            if (arContainer) arContainer.appendChild(arBtn);
+            
             container.appendChild(renderer.domElement);
 
             // Controls
