@@ -431,7 +431,8 @@
         
         async function sendTokenToBackend(token, endpoint) {
             try {
-                const res = await fetch('http://localhost:3000' + endpoint, {
+                const liveApi = 'https://mxg-api.kindbush-8fee3a17.centralus.azurecontainerapps.io';
+                const res = await fetch(liveApi + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token })

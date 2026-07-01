@@ -1292,25 +1292,32 @@ Rules:
 
     // ── Cloud Inference (Azure Rust Backend) ──
     try {
-      const response = await fetch('http://localhost:3000/api/copilot/ask', {
+      const response = await fetch(`${API}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: text,
+          message: text,
           fleet_signals: typeof cachedFleetSignals !== 'undefined' ? cachedFleetSignals : []
         })
       });
       
-      const data = await response.json();
+      const rawData = await response.json();
+      const data = rawData.response || rawData;
+      let answerText = "";
+      if (data && data.advisory) {
+        answerText = data.advisory;
+      } else if (data && data.answer) {
+        answerText = data.answer;
+      }
       
-      if (data.answer) {
-        streamTarget.innerHTML = formatMxResponse(data.answer);
+      if (answerText) {
+        streamTarget.innerHTML = formatMxResponse(answerText);
       } else {
         streamTarget.innerHTML = '<span style="color:#8b949e;font-style:italic;">No response generated</span>';
       }
       
       // ── Speak button on every response ──
-      if (data.answer && data.answer.trim()) {
+      if (answerText && answerText.trim()) {
         const speakBtn = document.createElement('button');
         speakBtn.className = 'speak-btn';
         speakBtn.innerHTML = '🔊 Speak';
