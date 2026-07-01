@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0d1117">
+    <title>A.S.S.I.R.T — 3D Viewer</title>
+    <!-- Fonts: system fallback (airgap — no external CDN) -->
+    <style>
+        /* ============================================
+           CSS Custom Properties
+           ============================================ */
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2128;
+            --bg-canvas: #0a0e14;
+            --border: #30363d;
+            --border-light: #21262d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --accent: #58a6ff;
+            --accent-dim: #1f6feb;
+            --classification-green: #3fb950;
+            --classification-bg: #0d1117;
+            --header-height: 72px;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+        }
+
+        /* ============================================
+           Reset & Base
+           ============================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================
+           Classification Banner
+           ============================================ */
+        .classification-banner {
+            height: var(--banner-height);
+            background: var(--classification-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 200;
+        }
+
+        .classification-banner.bottom {
+            border-bottom: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .classification-text {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--classification-green);
+        }
+
+        /* CUI / higher classifications turn amber/red */
+        .classification-banner.cui .classification-text {
+            color: #d29922;
+        }
+
+        .classification-banner.confidential .classification-text {
+            color: #f85149;
+        }
+
+        /* ============================================
+           Header
+           ============================================ */
+        .header {
+            height: var(--header-height);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 20px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .header-logo {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+            flex-shrink: 0;
+            border-radius: 4px;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 36px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .header-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+        }
+
+        /* Header Model Dropdown */
+        .header-model-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            padding: 6px 28px 6px 12px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2358a6ff'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 180px;
+            max-width: 300px;
+            transition: border-color 0.15s ease;
+        }
+
+        .header-model-select:hover {
+            border-color: var(--accent);
+        }
+
+        .header-model-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+
+        .header-meta {
+            margin-left: auto;
+            display: flex;
+            gap: 24px;
+            flex-shrink: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .meta-field {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1px;
+        }
+
+        .meta-label {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .meta-value {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* ============================================
+           3D Viewport Area
+           ============================================ */
+        .viewport-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-canvas);
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* ============================================
+           Loading Overlay
+           ============================================ */
+        #loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-canvas);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: opacity 0.6s ease;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-brand {
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .loader-brand span {
+            color: var(--accent);
+        }
+
+        .progress-track {
+            width: 200px;
+            height: 2px;
+            background: var(--border-light);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+            border-radius: 1px;
+        }
+
+        .progress-label {
+            margin-top: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* ============================================
+           Viewport Controls (Header Dropdown)
+           ============================================ */
+        .header-controls-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header-gear-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            line-height: 1;
+        }
+
+        .header-gear-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        #viewport-controls {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            min-width: 180px;
+            z-index: 200;
+            display: none;
+        }
+
+        #viewport-controls.open {
+            display: block;
+        }
+
+        .ctrl-section {
+            margin-bottom: 10px;
+        }
+
+        .ctrl-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .ctrl-label {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .ctrl-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 34px;
+            height: 18px;
+            background: var(--border-light);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-dim);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(16px);
+        }
+
+        /* Slider */
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80px;
+            height: 3px;
+            background: var(--border-light);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-val {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .ctrl-btn {
+            width: 100%;
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            letter-spacing: 0.04em;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--border-light);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* Collapse Toggle */
+        .ctrl-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+            user-select: none;
+        }
+
+        .ctrl-header-text {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+        }
+
+        .ctrl-chevron {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .ctrl-chevron.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .ctrl-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .ctrl-body.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        /* Animation Panel */
+        #anim-panel {
+            display: none;
+        }
+
+        #anim-panel.active {
+            display: block;
+        }
+
+        .anim-select {
+            width: 100%;
+            padding: 5px 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            cursor: pointer;
+        }
+
+        .anim-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .anim-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .ctrl-btn-sm {
+            padding: 4px 10px;
+            font-size: 0.62rem;
+        }
+
+        /* Play FAB (moved to header) */
+        #play-fab {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #play-fab.active {
+            display: flex;
+        }
+
+        #play-fab .fab-play-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 5px 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        #play-fab .fab-play-btn:hover {
+            background: var(--border-light);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        #play-fab .fab-anim-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            padding: 5px 8px;
+            max-width: 160px;
+        }
+
+        #play-fab .fab-speed {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            color: var(--text-muted);
+        }
+
+        /* Model Info Badge — removed, stats now in footer */
+
+        /* Responsive (Header Meta) */
+        @media (max-width: 1400px) {
+            .header-meta { gap: 16px; }
+        }
+        @media (max-width: 1100px) {
+            .header { gap: 12px; padding: 0 16px; }
+            .header-meta .meta-field:nth-child(n+4) { display: none; }
+        }
+        @media (max-width: 900px) {
+            .header-meta .meta-field:nth-child(n+3) { display: none; }
+        }
+
+        /* ============================================
+           Description Panel (expandable)
+           ============================================ */
+        #desc-panel {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(13, 17, 23, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 16px;
+            max-width: 320px;
+            z-index: 60;
+            display: none;
+        }
+
+        #desc-panel.active {
+            display: block;
+        }
+
+        .desc-title {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 6px;
+        }
+
+        .desc-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           Watermark
+           ============================================ */
+        .watermark {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            opacity: 0.4;
+            letter-spacing: 0.08em;
+            z-index: 55;
+            pointer-events: none;
+        }
+
+        /* Model nav bar — moved into header, old floating styles removed */
+
+        /* ============================================
+           Responsive
+           ============================================ */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 12px;
+                gap: 12px;
+            }
+
+            .header-logo {
+                height: 32px;
+            }
+
+            .header-title {
+                font-size: 0.85rem;
+            }
+
+            .header-meta {
+                gap: 12px;
+            }
+
+            .meta-field:nth-child(n+3) {
+                display: none;
+            }
+
+            #viewport-controls {
+                top: 8px;
+                right: 8px;
+                min-width: 150px;
+                padding: 10px;
+            }
+
+            .footer {
+                padding: 0 12px;
+            }
+        }
+
+        /* Apple Vision Button Override */
+        #ARButton {
+            position: relative !important;
+            bottom: auto !important;
+            left: auto !important;
+            transform: none !important;
+            padding: 6px 14px !important;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)) !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            border-radius: 6px !important;
+            color: transparent !important;
+            font-family: var(--font-sans) !important;
+            font-weight: 500 !important;
+            font-size: 0 !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            opacity: 1 !important;
+        }
+
+        #ARButton:hover {
+            background: rgba(255,255,255,0.15) !important;
+            border-color: rgba(255,255,255,0.4) !important;
+        }
+
+        #ARButton::before {
+            content: " Apple Vision";
+            font-size: 0.75rem !important;
+            color: #ffffff !important;
+            letter-spacing: 0.02em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Classification Banner (Top) Removed -->
+
+    <!-- ============================================
+         Header
+         ============================================ -->
+    <div class="header" style="display: flex; align-items: center; padding: 0 20px; height: var(--header-height); background: var(--bg-secondary); border-bottom: 1px solid var(--border); z-index: 100; flex-shrink: 0;">
+        <button class="header-back-btn" id="back-to-dashboard-btn" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 12px; border-radius: 4px; font-family: var(--font-primary); font-size: 0.8rem; cursor: pointer; margin-right: 15px; transition: background 0.2s ease;">⬅ Back</button>
+        
+        <select class="header-model-select" id="model-select">
+            <option value="">No models loaded</option>
+        </select>
+
+        <div id="ar-button-container" style="margin-left: 15px;"></div>
+        
+        <div style="flex: 1;"></div>
+        
+        <button id="toggle-advanced-controls" style="background:var(--bg-tertiary); border:1px solid var(--border); color:var(--text-primary); font-family:var(--font-primary); font-size:0.75rem; padding:6px 12px; border-radius:4px; cursor:pointer; margin-right:10px; transition:all 0.2s ease;">⚙ Controls</button>
+
+        <button id="reset-camera" style="background:none; border:1px solid var(--border); color:var(--text-primary); font-family:var(--font-primary); font-size:0.75rem; padding:6px 12px; border-radius:4px; cursor:pointer; transition:all 0.2s ease;">Reset Camera</button>
+    </div>
+
+    <!-- Advanced Controls Accordion -->
+    <div id="advanced-controls" style="display: none; align-items: center; gap: 15px; padding: 10px 20px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; z-index: 99; flex-shrink: 0;">
+        <!-- Animation Controls (Moved from FAB) -->
+        <div id="play-fab" style="align-items: center; gap: 8px;">
+            <select id="anim-select" class="fab-anim-select" style="background:var(--bg-primary); border:1px solid var(--border); border-radius:4px; color:var(--text-secondary); font-family:var(--font-mono); font-size:0.62rem; padding:4px 8px;">
+                <option value="">No animations</option>
+            </select>
+            <button class="fab-play-btn" id="anim-playpause" style="background:var(--bg-primary); border:1px solid var(--border); color:var(--text-primary); font-family:var(--font-mono); font-size:0.68rem; padding:4px 10px; border-radius:4px; cursor:pointer;">▶ Play</button>
+            <span class="fab-speed" style="display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:0.58rem; color:var(--text-muted);">
+                <input type="range" class="slider" id="anim-speed" min="0.1" max="2" step="0.1" value="1" style="width:40px;">
+                <span id="speed-val">1.0x</span>
+            </span>
+        </div>
+
+        <div class="header-divider" style="width:1px; height:20px; background:var(--border);"></div>
+
+        <!-- Studio Lights -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Lights:</span>
+            
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted);">KEY</span>
+                <div class="toggle-switch active" id="toggle-key" title="Key Light"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted);">FILL</span>
+                <div class="toggle-switch active" id="toggle-fill" title="Fill Light"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted);">RIM</span>
+                <div class="toggle-switch active" id="toggle-rim" title="Rim Light"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted);">AMB</span>
+                <div class="toggle-switch active" id="toggle-ambient" title="Ambient Light"><div class="toggle-knob"></div></div>
+            </div>
+        </div>
+
+        <div class="header-divider" style="width:1px; height:20px; background:var(--border);"></div>
+
+        <!-- Render Controls -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="footer-toggle" id="toggle-wireframe" title="Wireframe" style="color:var(--text-muted); font-family:var(--font-mono); font-size:0.7rem; cursor:pointer;"><span class="ft-label">Wire</span></div>
+            <div class="footer-toggle active" id="toggle-bloom" title="Bloom" style="color:var(--accent); font-family:var(--font-mono); font-size:0.7rem; cursor:pointer;"><span class="ft-label">Bloom</span></div>
+            <div class="footer-toggle" id="toggle-ao" title="Ambient Occlusion" style="color:var(--text-muted); font-family:var(--font-mono); font-size:0.7rem; cursor:pointer;"><span class="ft-label">AO</span></div>
+            
+            <select id="hdri-select" class="footer-select" style="background:var(--bg-primary); border:1px solid var(--border); border-radius:4px; color:var(--text-primary); font-family:var(--font-mono); font-size:0.7rem; padding:4px 8px;">
+                <option value="">HDRI Off</option>
+                <option value="hdri/hangar_interior_4k.hdr">Hangar Interior</option>
+                <option value="hdri/industrial_workshop_4k.hdr">Industrial Workshop</option>
+            </select>
+        </div>
+
+        <div class="header-divider" style="width:1px; height:20px; background:var(--border);"></div>
+        
+        <!-- Exposure -->
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <span class="ft-label" style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); text-transform:uppercase;">Exp</span>
+            <input type="range" class="slider" id="exposure-slider" min="0.1" max="3" step="0.1" value="1" style="width:50px;">
+            <span class="slider-val" id="exposure-val" style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-primary); min-width:20px;">1.0</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+         3D Viewport
+         ============================================ -->
+    <div class="viewport-wrapper">
+
+        <!-- Loading Overlay -->
+        <div id="loader">
+            <div class="loader-brand">MX<span>GENIUS</span></div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-label" id="progress-label">Initializing...</div>
+        </div>
+
+        <!-- Canvas -->
+        <div id="canvas-container"></div>
+
+        <!-- Watermark -->
+        <div class="watermark" id="watermark">A.S.S.I.R.T 3D VIEWER</div>
+
+        <!-- Description Panel -->
+        <div id="desc-panel">
+            <div class="desc-title">Description</div>
+            <div class="desc-text" id="desc-text"></div>
+        </div>
+    </div>
+
+    <!-- Classification Banner (Bottom) Removed -->
+
+    <!-- ============================================
+         Three.js Import Map
+         ============================================ -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./lib/three.module.js",
+            "three/addons/": "./lib/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        window.addEventListener('error', function(e) {
+            alert('JS Error: ' + e.message + ' at ' + e.filename + ':' + e.lineno);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            alert('Promise Rejection: ' + e.reason);
+        });
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+        import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { SAOPass } from 'three/addons/postprocessing/SAOPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+        import { ARButton } from 'three/addons/webxr/ARButton.js';
+
+        // =============================================
+        //  PROJECT CONFIG — EDIT ONCE PER CONTRACT
+        // =============================================
+        const PROJECT = {
+            projectName: "A.S.S.I.R.T 3D Viewer",
+            companyName: "JETNET / Advanced AOG",
+            date: "2026-03-20",
+            logoPath: "./assets/logo.png"
+        };
+
+        // MXGenius standard polygon budgets
+        const POLY_BUDGETS = {
+            mailbox: 50,
+            tree: 200,
+            building: 2000,
+            civilian_vehicle: 25000,
+            military_vehicle: 50000
+        };
+
+        // =============================================
+        //  Model Catalog (loaded from models.json)
+        // =============================================
+        let catalog = [];
+        let catalogIndex = 0;
+
+        // =============================================
+        //  Renderer Config
+        // =============================================
+        const RENDER_CONFIG = {
+            bloomThreshold: 0.85,
+            bloomStrength: 0.35,
+            bloomRadius: 0.4,
+            saoIntensity: 0.015,
+            saoScale: 1,
+            saoKernelRadius: 50,
+            cameraFov: 45,
+            cameraNear: 0.01,
+            cameraFar: 2000,
+            dampingFactor: 0.05,
+            bgColor: 0x0a0e14
+        };
+
+        // =============================================
+        //  State
+        // =============================================
+        let scene, camera, renderer, controls, composer;
+        let bloomPass, saoPass;
+        let currentModel = null;
+        let mixer = null;
+        let animations = [];
+        let currentAction = null;
+
+        const state = {
+            bloomEnabled: true,
+            aoEnabled: false,
+            hdriEnabled: false,
+            wireframeEnabled: false,
+            exposure: 1.0,
+            isPlaying: false,
+            animationSpeed: 1.0,
+            initialCameraPosition: new THREE.Vector3(0, 0, 2)
+        };
+
+        // =============================================
+        //  DOM References
+        // =============================================
+        const container = document.getElementById('canvas-container');
+        const loaderEl = document.getElementById('loader');
+        const progressFill = document.getElementById('progress-fill');
+        const progressLabel = document.getElementById('progress-label');
+
+        // =============================================
+        //  Populate Header / Metadata from Config
+        // =============================================
+        function populateMetadata() {
+            // Classification and logos removed during unbranding.
+            // Page title
+            document.title = `MXGenius — ${PROJECT.projectName}`;
+        }
+
+        // =============================================
+        //  Three.js Initialization
+        // =============================================
+        function init() {
+            populateMetadata();
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(RENDER_CONFIG.bgColor);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(
+                RENDER_CONFIG.cameraFov,
+                container.clientWidth / container.clientHeight,
+                RENDER_CONFIG.cameraNear,
+                RENDER_CONFIG.cameraFar
+            );
+            camera.position.copy(state.initialCameraPosition);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = state.exposure;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.xr.enabled = true;
+            const arBtn = ARButton.createButton(renderer);
+            const arContainer = document.getElementById('ar-button-container');
+            if (arContainer) arContainer.appendChild(arBtn);
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = RENDER_CONFIG.dampingFactor;
+            controls.screenSpacePanning = true;
+            controls.minDistance = 0.01;
+            controls.maxDistance = 200;
+            controls.target.set(0, 0, 0);
+
+            // Post-processing
+            setupPostProcessing();
+
+            // Lights
+            addLights();
+
+            // Event listeners
+            setupEventListeners();
+
+            // Load model catalog from models.json
+            loadCatalog();
+
+            // Begin render loop
+            renderer.setAnimationLoop(animate);
+        }
+
+        // =============================================
+        //  Lighting
+        // =============================================
+        function addLights() {
+            // Ambient
+            const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambient);
+
+            // Key light
+            const key = new THREE.DirectionalLight(0xffffff, 1.0);
+            key.position.set(5, 8, 5);
+            key.castShadow = true;
+            key.shadow.mapSize.width = 2048;
+            key.shadow.mapSize.height = 2048;
+            scene.add(key);
+
+            // Fill light
+            const fill = new THREE.DirectionalLight(0xffffff, 0.3);
+            fill.position.set(-5, 2, -5);
+            scene.add(fill);
+
+            // Rim light
+            const rim = new THREE.DirectionalLight(0xffffff, 0.2);
+            rim.position.set(0, -3, -8);
+            scene.add(rim);
+
+            // Subtle hemisphere for color
+            const hemi = new THREE.HemisphereLight(0x3d5a80, 0x1a1a2e, 0.3);
+            scene.add(hemi);
+
+            // Export to global so UI can toggle them
+            window.studioLights = { key, fill, rim, ambient, hemi };
+        }
+
+        // =============================================
+        //  Post-Processing
+        // =============================================
+        function setupPostProcessing() {
+            composer = new EffectComposer(renderer);
+
+            const renderPass = new RenderPass(scene, camera);
+            composer.addPass(renderPass);
+
+            saoPass = new SAOPass(scene, camera);
+            saoPass.params.saoIntensity = RENDER_CONFIG.saoIntensity;
+            saoPass.params.saoScale = RENDER_CONFIG.saoScale;
+            saoPass.params.saoKernelRadius = RENDER_CONFIG.saoKernelRadius;
+            saoPass.params.saoMinResolution = 0;
+            saoPass.params.saoBlur = true;
+            saoPass.params.saoBlurRadius = 8;
+            saoPass.params.saoBlurStdDev = 4;
+            saoPass.params.saoBlurDepthCutoff = 0.01;
+            saoPass.enabled = false;
+            composer.addPass(saoPass);
+
+            bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(container.clientWidth, container.clientHeight),
+                RENDER_CONFIG.bloomStrength,
+                RENDER_CONFIG.bloomRadius,
+                RENDER_CONFIG.bloomThreshold
+            );
+            composer.addPass(bloomPass);
+
+            const outputPass = new OutputPass();
+            composer.addPass(outputPass);
+        }
+
+        // =============================================
+        //  Model Catalog — Fetch + Navigate
+        // =============================================
+        async function loadCatalog() {
+            try {
+                const res = await fetch('./models.json');
+                if (!res.ok) throw new Error('models.json not found');
+                catalog = await res.json();
+            } catch (e) {
+                console.warn('No models.json found, using empty catalog');
+                catalog = [];
+            }
+
+            if (catalog.length > 0) {
+                // Find helmet index if it exists, otherwise default to 0
+                let startIdx = catalog.findIndex(c => c.file.toLowerCase().includes('helmet'));
+                if (startIdx === -1) startIdx = 0;
+                
+                catalogIndex = startIdx;
+                loadModelByIndex(startIdx);
+            } else {
+                updateProgress(100, 'No models — drop files in ./models/ and push');
+                setTimeout(() => {
+                    loaderEl.classList.add('hidden');
+                    addPlaceholderGrid();
+                }, 1500);
+            }
+            updateNavBar();
+
+            // Default to Hangar HDRI
+            setTimeout(() => {
+                const hdriSelect = document.getElementById('hdri-select');
+                if (hdriSelect) {
+                    hdriSelect.value = "hdri/hangar_interior_4k.hdr";
+                    hdriSelect.dispatchEvent(new Event('change'));
+                }
+            }, 100);
+        }
+
+        function loadModelByIndex(idx) {
+            if (idx < 0 || idx >= catalog.length) return;
+            catalogIndex = idx;
+            const entry = catalog[idx];
+            const modelPath = entry.file;
+            const ext = modelPath.split('.').pop().toLowerCase();
+
+            // Show loader
+            loaderEl.classList.remove('hidden');
+            updateProgress(10, `Loading ${entry.name || 'model'}...`);
+
+            // Update per-model UI
+            updateNavBar();
+            updateModelMeta(entry);
+
+            if (ext === 'glb' || ext === 'gltf') {
+                loadGLTF(modelPath);
+            } else if (ext === 'fbx') {
+                loadFBX(modelPath);
+            } else if (ext === 'obj') {
+                loadOBJ(modelPath);
+            } else {
+                updateProgress(100, 'Unsupported format — use .glb, .fbx, or .obj');
+                setTimeout(() => loaderEl.classList.add('hidden'), 1500);
+            }
+        }
+
+        function updateNavBar() {
+            const sel = document.getElementById('model-select');
+            sel.innerHTML = '';
+            if (catalog.length === 0) {
+                sel.innerHTML = '<option value="">No models loaded</option>';
+                return;
+            }
+            catalog.forEach((entry, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = entry.name || entry.file;
+                if (i === catalogIndex) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        function updateModelMeta(entry) {
+            // Description
+            if (entry.description) {
+                document.getElementById('desc-text').textContent = entry.description;
+                document.getElementById('desc-panel').classList.add('active');
+            } else {
+                document.getElementById('desc-panel').classList.remove('active');
+            }
+        }
+
+        function navigateModel(delta) {
+            const newIdx = catalogIndex + delta;
+            if (newIdx >= 0 && newIdx < catalog.length) {
+                loadModelByIndex(newIdx);
+            }
+        }
+
+        function loadGLTF(url) {
+            const loader = new GLTFLoader();
+            const dracoLoader = new DRACOLoader();
+            dracoLoader.setDecoderPath('./lib/libs/draco/');
+            loader.setDRACOLoader(dracoLoader);
+
+            loader.load(
+                url,
+                (gltf) => {
+                    addModelToScene(gltf.scene);
+
+                    // Animations
+                    if (gltf.animations && gltf.animations.length > 0) {
+                        setupAnimations(gltf.animations, gltf.scene);
+                    }
+
+                    updateProgress(100, 'Ready');
+                    setTimeout(() => loaderEl.classList.add('hidden'), 400);
+                },
+                (progress) => {
+                    if (progress.total > 0) {
+                        const pct = Math.round((progress.loaded / progress.total) * 100);
+                        updateProgress(pct, `Loading model... ${pct}%`);
+                    }
+                },
+                (error) => {
+                    console.warn('Model load error:', error);
+                    updateProgress(100, 'No model found — place model.glb in ./assets/');
+                    setTimeout(() => {
+                        loaderEl.classList.add('hidden');
+                        addPlaceholderGrid();
+                    }, 2000);
+                }
+            );
+        }
+
+        function loadFBX(url) {
+            const loader = new FBXLoader();
+            loader.load(
+                url,
+                (object) => {
+                    addModelToScene(object);
+                    updateProgress(100, 'Ready');
+                    setTimeout(() => loaderEl.classList.add('hidden'), 400);
+                },
+                (progress) => {
+                    if (progress.total > 0) {
+                        const pct = Math.round((progress.loaded / progress.total) * 100);
+                        updateProgress(pct, `Loading FBX... ${pct}%`);
+                    }
+                },
+                (error) => {
+                    console.warn('FBX load error:', error);
+                    updateProgress(100, 'No model found — place model.fbx in ./assets/');
+                    setTimeout(() => {
+                        loaderEl.classList.add('hidden');
+                        addPlaceholderGrid();
+                    }, 2000);
+                }
+            );
+        }
+
+        function loadOBJ(url) {
+            const loader = new OBJLoader();
+            loader.load(
+                url,
+                (object) => {
+                    addModelToScene(object);
+                    updateProgress(100, 'Ready');
+                    setTimeout(() => loaderEl.classList.add('hidden'), 400);
+                },
+                (progress) => {
+                    if (progress.total > 0) {
+                        const pct = Math.round((progress.loaded / progress.total) * 100);
+                        updateProgress(pct, `Loading OBJ... ${pct}%`);
+                    }
+                },
+                (error) => {
+                    console.warn('OBJ load error:', error);
+                    updateProgress(100, 'No model found — place model.obj in ./assets/');
+                    setTimeout(() => {
+                        loaderEl.classList.add('hidden');
+                        addPlaceholderGrid();
+                    }, 2000);
+                }
+            );
+        }
+
+        // =============================================
+        //  Add Model to Scene
+        // =============================================
+        function addModelToScene(model) {
+            if (currentModel) {
+                scene.remove(currentModel);
+                disposeModel(currentModel);
+            }
+
+            // Reset animation state
+            if (mixer) {
+                mixer.stopAllAction();
+                mixer = null;
+            }
+            animations = [];
+            currentAction = null;
+            state.isPlaying = false;
+            document.getElementById('play-fab').classList.remove('active');
+            document.getElementById('anim-playpause').textContent = '▶ Play';
+
+            currentModel = model;
+
+            // Re-apply HDRI envMap if enabled
+            if (state.hdriEnabled && hdriTexture) {
+                applyHDRI(hdriTexture);
+            }
+
+            // Re-apply wireframe if enabled
+            if (state.wireframeEnabled) {
+                currentModel.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(m => { m.wireframe = true; });
+                    }
+                });
+            }
+
+            // Auto-center and normalize scale
+            const box = new THREE.Box3().setFromObject(currentModel);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            if (maxDim > 0) {
+                const scale = 1.5 / maxDim;
+                currentModel.scale.multiplyScalar(scale);
+                currentModel.position.sub(center.multiplyScalar(scale));
+            }
+
+            // Enable shadows + PBR upgrade
+            let meshCount = 0;
+            currentModel.traverse((child) => {
+                if (child.isMesh) {
+                    meshCount++;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+
+                    // Upgrade non-PBR materials
+                    if (child.material && !child.material.isMeshStandardMaterial) {
+                        if (child.material.isMeshBasicMaterial ||
+                            child.material.isMeshLambertMaterial ||
+                            child.material.isMeshPhongMaterial) {
+                            const oldMat = child.material;
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: oldMat.color || 0xcccccc,
+                                map: oldMat.map || null,
+                                normalMap: oldMat.normalMap || null,
+                                roughness: 0.7,
+                                metalness: 0.1
+                            });
+                            oldMat.dispose();
+                        }
+                    }
+                }
+            });
+
+            scene.add(currentModel);
+
+            updateModelStats(currentModel);
+        }
+
+        function updateModelStats(sceneNode) {
+            let polyBudget = null;
+            if (catalogIndex >= 0 && catalogIndex < catalog.length) {
+                polyBudget = catalog[catalogIndex].polyBudget;
+            }
+
+            let triCount = 0;
+            let meshCount = 0;
+            sceneNode.traverse((child) => {
+                if (child.isMesh) {
+                    meshCount++;
+                    if (child.geometry && child.geometry.index) {
+                        triCount += child.geometry.index.count / 3;
+                    } else if (child.geometry && child.geometry.attributes.position) {
+                        triCount += child.geometry.attributes.position.count / 3;
+                    }
+                }
+            });
+
+            // Reset camera to fit
+            fitCameraToModel();
+        }
+
+        function fitCameraToModel() {
+            if (!currentModel) return;
+
+            const box = new THREE.Box3().setFromObject(currentModel);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = (maxDim / 2) / Math.tan(fov / 2);
+            cameraZ *= 1.6; // add some breathing room
+
+            camera.position.set(
+                center.x + cameraZ * 0.3,
+                center.y + cameraZ * 0.2,
+                center.z + cameraZ
+            );
+            controls.target.copy(center);
+            state.initialCameraPosition.copy(camera.position);
+            controls.update();
+        }
+
+        // =============================================
+        //  Placeholder Grid (when no model loaded)
+        // =============================================
+        function addPlaceholderGrid() {
+            const grid = new THREE.GridHelper(4, 20, 0x30363d, 0x21262d);
+            scene.add(grid);
+        }
+
+        // =============================================
+        //  Animation Support
+        // =============================================
+        function setupAnimations(clips, target) {
+            if (mixer) {
+                mixer.stopAllAction();
+                mixer = null;
+            }
+
+            animations = clips;
+            mixer = new THREE.AnimationMixer(target);
+
+            const select = document.getElementById('anim-select');
+            select.innerHTML = '';
+
+            animations.forEach((clip, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = clip.name || `Animation ${i + 1}`;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('play-fab').classList.add('active');
+            select.value = '0';
+            onAnimationChange();
+        }
+
+        function onAnimationChange() {
+            const idx = parseInt(document.getElementById('anim-select').value);
+            if (isNaN(idx) || !mixer || !animations[idx]) return;
+
+            if (currentAction) currentAction.stop();
+
+            currentAction = mixer.clipAction(animations[idx]);
+            currentAction.setLoop(THREE.LoopRepeat);
+            currentAction.clampWhenFinished = false;
+            currentAction.timeScale = state.animationSpeed;
+
+            if (state.isPlaying) currentAction.play();
+        }
+
+        function toggleAnimation() {
+            state.isPlaying = !state.isPlaying;
+            const btn = document.getElementById('anim-playpause');
+
+            if (currentAction) {
+                if (state.isPlaying) {
+                    currentAction.paused = false;
+                    currentAction.play();
+                    btn.textContent = '⏸ Pause';
+                } else {
+                    currentAction.paused = true;
+                    btn.textContent = '▶ Play';
+                }
+            }
+        }
+
+        // =============================================
+        //  Event Listeners
+        // =============================================
+        function setupEventListeners() {
+            // Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                composer.setSize(container.clientWidth, container.clientHeight);
+            });
+
+            // Bloom toggle
+            document.getElementById('toggle-bloom').addEventListener('click', function () {
+                state.bloomEnabled = !state.bloomEnabled;
+                this.classList.toggle('active', state.bloomEnabled);
+                bloomPass.enabled = state.bloomEnabled;
+            });
+
+            // AO toggle
+            document.getElementById('toggle-ao').addEventListener('click', function () {
+                state.aoEnabled = !state.aoEnabled;
+                this.classList.toggle('active', state.aoEnabled);
+                saoPass.enabled = state.aoEnabled;
+            });
+
+            // Exposure
+            document.getElementById('exposure-slider').addEventListener('input', (e) => {
+                state.exposure = parseFloat(e.target.value);
+                document.getElementById('exposure-val').textContent = state.exposure.toFixed(1);
+                renderer.toneMappingExposure = state.exposure;
+            });
+
+            // Reset camera
+            document.getElementById('reset-camera').addEventListener('click', () => {
+                camera.position.copy(state.initialCameraPosition);
+                controls.target.set(0, 0, 0);
+                if (currentModel) fitCameraToModel();
+                controls.update();
+            });
+
+            // Animation controls
+            document.getElementById('anim-select').addEventListener('change', onAnimationChange);
+            document.getElementById('anim-playpause').addEventListener('click', toggleAnimation);
+            document.getElementById('anim-speed').addEventListener('input', (e) => {
+                state.animationSpeed = parseFloat(e.target.value);
+                document.getElementById('speed-val').textContent = state.animationSpeed.toFixed(1) + 'x';
+                if (currentAction) currentAction.timeScale = state.animationSpeed;
+            });
+
+            // Wireframe toggle
+            document.getElementById('toggle-wireframe').addEventListener('click', function () {
+                state.wireframeEnabled = !state.wireframeEnabled;
+                this.classList.toggle('active', state.wireframeEnabled);
+                if (currentModel) {
+                    currentModel.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(m => { m.wireframe = state.wireframeEnabled; });
+                        }
+                    });
+                }
+            });
+
+            // Model dropdown
+            document.getElementById('model-select').addEventListener('change', (e) => {
+                const idx = parseInt(e.target.value);
+                if (!isNaN(idx) && idx >= 0 && idx < catalog.length) {
+                    loadModelByIndex(idx);
+                }
+            });
+
+            // HDRI environment selector
+            document.getElementById('hdri-select').addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val) {
+                    state.hdriEnabled = true;
+                    if (hdriTexture) hdriTexture.dispose();
+                    hdriTexture = null;
+                    loadHDRI(val);
+                } else {
+                    state.hdriEnabled = false;
+                    toggleHDRI();
+                }
+            });
+
+            // Viewport Controls (Gear Button) removed.
+
+            // Light toggles
+            const setupLightToggle = (id, lightName) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('click', () => {
+                    el.classList.toggle('active');
+                    if (window.studioLights && window.studioLights[lightName]) {
+                        window.studioLights[lightName].visible = el.classList.contains('active');
+                    }
+                });
+            };
+            setupLightToggle('toggle-key', 'key');
+            setupLightToggle('toggle-fill', 'fill');
+            setupLightToggle('toggle-rim', 'rim');
+            setupLightToggle('toggle-ambient', 'ambient');
+
+            // Back button
+            const backBtn = document.getElementById('back-to-dashboard-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    // Switch to dashboard tab in the parent window
+                    if (window.parent && typeof window.parent.switchTab === 'function') {
+                        window.parent.switchTab('dashboard');
+                    } else {
+                        // Fallback
+                        console.log('Cannot find parent window to switch tab.');
+                    }
+                });
+            }
+
+            // Keyboard navigation
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+                if (e.key === 'ArrowLeft') navigateModel(-1);
+                if (e.key === 'ArrowRight') navigateModel(1);
+            });
+        }
+
+        // =============================================
+        //  HDRI Environment
+        // =============================================
+        let hdriTexture = null;
+
+        function toggleHDRI() {
+            if (state.hdriEnabled) {
+                if (hdriTexture) {
+                    applyHDRI(hdriTexture);
+                } else {
+                    loadHDRI();
+                }
+            } else {
+                scene.environment = null;
+                scene.background = null;
+                // Remove envMap from all materials
+                if (currentModel) {
+                    currentModel.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            const mats = Array.isArray(child.material) ? child.material : [child.material];
+                            mats.forEach(m => {
+                                m.envMap = null;
+                                m.needsUpdate = true;
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        function applyHDRI(texture) {
+            scene.environment = texture;
+            scene.background = texture;
+            // Apply envMap directly to all mesh materials (per Example_Viewport pattern)
+            if (currentModel) {
+                currentModel.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(m => {
+                            m.envMap = texture;
+                            m.envMapIntensity = 1.0;
+                            m.needsUpdate = true;
+                        });
+                    }
+                });
+            }
+        }
+
+        function loadHDRI(path) {
+            const url = path || document.getElementById('hdri-select').value;
+            const rgbeLoader = new RGBELoader();
+            rgbeLoader.load(
+                url,
+                (texture) => {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    hdriTexture = texture;
+                    console.log('HDRI loaded successfully');
+                    if (state.hdriEnabled) {
+                        applyHDRI(hdriTexture);
+                    }
+                },
+                undefined,
+                (err) => console.error('HDRI load failed:', err)
+            );
+        }
+
+        // =============================================
+        //  Utilities
+        // =============================================
+        function updateProgress(pct, text) {
+            progressFill.style.width = `${pct}%`;
+            progressLabel.textContent = text;
+        }
+
+        function countTriangles(obj) {
+            let count = 0;
+            obj.traverse((child) => {
+                if (child.isMesh && child.geometry) {
+                    const geo = child.geometry;
+                    if (geo.index) {
+                        count += geo.index.count / 3;
+                    } else if (geo.attributes.position) {
+                        count += geo.attributes.position.count / 3;
+                    }
+                }
+            });
+            return Math.floor(count);
+        }
+
+        function disposeModel(model) {
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(m => {
+                            m.dispose();
+                            for (const key in m) {
+                                if (m[key] && typeof m[key].dispose === 'function') {
+                                    m[key].dispose();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // =============================================
+        //  Render Loop
+        // =============================================
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const delta = clock.getDelta();
+            controls.update();
+            if (mixer) mixer.update(delta);
+            
+            if (renderer.xr.isPresenting) {
+                renderer.render(scene, camera);
+            } else {
+                composer.render();
+            }
+        }
+
+        // =============================================
+        //  Boot & UI Logic
+        // =============================================
+        
+        // Toggle Advanced Controls
+        const toggleControlsBtn = document.getElementById('toggle-advanced-controls');
+        const advancedControls = document.getElementById('advanced-controls');
+        if (toggleControlsBtn && advancedControls) {
+            toggleControlsBtn.addEventListener('click', () => {
+                const isHidden = advancedControls.style.display === 'none';
+                if (isHidden) {
+                    advancedControls.style.display = 'flex';
+                    toggleControlsBtn.style.background = 'var(--accent-dim)';
+                    toggleControlsBtn.style.borderColor = 'var(--accent)';
+                } else {
+                    advancedControls.style.display = 'none';
+                    toggleControlsBtn.style.background = 'var(--bg-tertiary)';
+                    toggleControlsBtn.style.borderColor = 'var(--border)';
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

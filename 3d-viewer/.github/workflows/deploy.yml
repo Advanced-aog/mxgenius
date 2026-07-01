@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto-generate models.json from models/ folder
+        run: |
+          echo "[" > models.json
+          first=true
+          for f in models/*.glb models/*.gltf models/*.fbx models/*.obj; do
+            [ -f "$f" ] || continue
+            basename=$(basename "$f")
+            # Parse display name from MilVerse convention: SM_Truck_Base_v1.fbx → Truck Base v1
+            name=$(echo "$basename" | sed 's/\.[^.]*$//' | sed 's/^[A-Z]*_//' | sed 's/_/ /g')
+            # Detect revision from filename (last segment starting with v)
+            rev=$(echo "$basename" | sed 's/\.[^.]*$//' | grep -oP 'v\d+$' || echo "")
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo "," >> models.json
+            fi
+            cat >> models.json <<EOF
+            {
+              "file": "$f",
+              "name": "$name",
+              "revision": "$rev"
+            }
+          EOF
+          done
+          echo "]" >> models.json
+          echo "Generated models.json:"
+          cat models.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

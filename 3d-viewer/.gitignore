@@ -1,0 +1,27 @@
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Node (if using npx serve locally)
+node_modules/
+
+# HDRI files (too large for git, keep local)
+hdri/*.hdr
+hdri/*.exr
+
+# Video recordings (too large for git)
+videos/
+
+# Keep these
+!assets/
+!models/
+!models.json
+
+# Temp files
+Documents/_*.txt
